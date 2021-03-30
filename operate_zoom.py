@@ -2,11 +2,6 @@ import pyautogui as pg
 import sys
 import os
 
-os.environ['DISPLAY'] = ':0'
-
-# フェールセーフショートカットキー
-print('Press Ctrl-C to quit.')
-
 # ズーム起動部分(windows専用)
 def run_zoom():
 
@@ -56,11 +51,11 @@ def start_meeting():
     button_x, button_y = pg.center(pg.locateOnScreen(button_start))
     pg.click(button_x, button_y)
 
-
-# メイン部分
-try:
-    run_zoom()
-    pg.PAUSE = 5 #Zoomの起動待ち
-    start_meeting()
-except KeyboardInterrupt:
-    print('\n')
+def main():
+    # メイン部分
+    try:
+        run_zoom()
+        pg.PAUSE = 5 #Zoomの起動待ち
+        start_meeting()
+    except KeyboardInterrupt:
+        print('\n')
