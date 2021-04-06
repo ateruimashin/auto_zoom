@@ -51,7 +51,9 @@ def start_meeting():
     button_x, button_y = pg.center(pg.locateOnScreen(button_start))
     pg.click(button_x, button_y)
 
-def main():
+def Operate():
+    """handmake module.Operate Zoom.
+    """
     # メイン部分
     try:
         run_zoom()
