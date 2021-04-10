@@ -18,20 +18,26 @@ window = sg.Window('ミーティング開催', layout)
 RPA_running = False
 next_start_date, next_end_date = '0000-00-00 00:00', '0000-00-00 00:00'
 count = -1  #初回ループ時に予定取得させるため
+interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
+zoom_flag = False   #何度も起動するのを防ぐため。Trueの場合1分経過でFalseに戻す。
 
 
 while True:
-    event, values = window.read(timeout=60000)  #ループ間隔は60秒
+    event, values = window.read(timeout=1000)  #ループ間隔は1秒
 
     #現在時刻を取得
     now = dt.datetime.now()
+
+    #時刻表示のために整形
+    now_time = now.strftime('%Y-%m-%d %H:%M:%S')
 
     #比較のためにstr型に変換
     now_date = now.strftime('%Y-%m-%d %H:%M')
 
     #現在時刻の表示
-    window['-NOW-'].update(now_date)
+    window['-NOW-'].update(now_time)
 
+    #ボタン操作
     if event in ('Quit'):
         break
     elif event == 'Start/Stop':
@@ -40,11 +46,13 @@ while True:
             print('{} Start'.format(now_date))
         else:
             print('{} Stop'.format(now_date))
+            #再開時に予定を取得させるため
+            count = -1
 
     if RPA_running:
 
         #30分間隔で予定取得
-        if count == -1 or count == 30:
+        if count == -1 or count == 60:
 
             #カウンタを戻す
             count = 0
@@ -71,12 +79,34 @@ while True:
             window['-START-'].update(start_date)
             window['-END-'].update(end_date)
 
-        #開始時刻になったらZoomを立ち上げる
-        if start_date == now_date:
-            print('Start meeting')
-            oz.Operate()
+        #ミーティング開始時、終了時にカウントを始める
+        if zoom_flag == True:
+            interval += 1
+
+        #60秒経過したらフラッグを反転させ、変数を初期値に戻す
+        if interval == 60:
+            zoom_flag = not zoom_flag
+            interval = 0
+
+        #開始時刻かつ直前にミーティングを起動していないならミーティングを開始する
+        if start_date == now_date and zoom_flag == False:
+            zoom_flag = True
+            oz.Start_Zoom()
+            print('{} Start meeting'.format(now_date))
+
+        #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
+        if end_date == now_date and zoom_flag == False:
+            zoom_flag = True
+            oz.Stop_Zoom()
+            print('{} Quit meeting'.format(now_date))
+            #ミーティング終了後、即座に予定を再取得する
+            count = -1
+            continue
         
         #カウンタを増やす
         count += 1
+
+    else:
+        continue
             
 window.close()
