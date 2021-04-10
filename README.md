@@ -39,7 +39,7 @@ https://ateruimashin.com/diary/2021/04/auto-zoom-meeting/
 - ミーティング開始、終了時のログ出力の順序を変更
 - 重複してミーティングが開かないための措置
 - ミーティングを終了時に次の予定を取得するように変更
-- Stopした後Startすると予定を取得するように変更
+- Stopした後Startすると予定を取得するように変更  
 https://ateruimashin.com/diary/2021/04/rpa-add-function/
 
 # 予定
