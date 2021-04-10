@@ -52,7 +52,7 @@ while True:
     if RPA_running:
 
         #30分間隔で予定取得
-        if count == -1 or count == 60:
+        if count == -1 or count == 1800:
 
             #カウンタを戻す
             count = 0
