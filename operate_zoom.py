@@ -51,13 +51,38 @@ def start_meeting():
     button_x, button_y = pg.center(pg.locateOnScreen(button_start))
     pg.click(button_x, button_y)
 
-def Operate():
-    """handmake module.Operate Zoom.
-    """
-    # メイン部分
+def Stop():
+    #ミーティング終了するときに押すボタン
+    button_quit = r'button\active\zoom_meeting_quit.PNG'
+
+    #終了ボタンを押す(ショートカットキーで代用)
+    pg.hotkey('alt', 'q')
+
+    #画面遷移のために1秒停止する
+    pg.PAUSE = 1
+
+    #全員に対してミーティングを終了する
+    button_loc = pg.locateOnScreen(button_quit)
+    if button_loc is None:
+        print('404 NOT FOUND')
+    else:
+        button_x, button_y = pg.center(button_loc)
+        pg.click(button_x, button_y)
+
+#ミーティング開始時
+def Start_Zoom():
     try:
         run_zoom()
         pg.PAUSE = 5 #Zoomの起動待ち
         start_meeting()
     except KeyboardInterrupt:
-        print('\n')
+        print('ERROR: It can not start zoom meeting.\n')
+        pg.FAILSAFE = True
+
+#ミーティング終了時
+def Stop_Zoom():
+    try:
+        Stop()
+    except KeyboardInterrupt:
+        print('ERROR: It can not quit zoom meeting.\n')
+        pg.FAILSAFE = True
