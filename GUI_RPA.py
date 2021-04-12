@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import datetime as dt
 import getschedule as gs
 import operate_zoom as oz
+import time
 
 sg.theme('DarkBrown1')
 
@@ -93,6 +94,11 @@ while True:
             zoom_flag = True
             oz.Start_Zoom()
             print('{} Start meeting'.format(now_date))
+            
+            #タイミング調整
+            time.sleep(5)
+
+            #画面共有開始
             oz.screen_sharing()
 
         #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
