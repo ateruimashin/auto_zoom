@@ -93,6 +93,7 @@ while True:
             zoom_flag = True
             oz.Start_Zoom()
             print('{} Start meeting'.format(now_date))
+            oz.screen_sharing()
 
         #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
         if end_date == now_date and zoom_flag == False:
