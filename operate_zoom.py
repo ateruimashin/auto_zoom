@@ -2,9 +2,17 @@ import pyautogui as pg
 import sys
 import os
 
+#画像認識をしてクリックする
+def sarch_click(button):
+    button_loc = pg.locateOnScreen(button)
+    if button_loc is None:
+        print('404 NOT FOUND')
+    else:
+        button_x, button_y = pg.center(button_loc)
+        pg.click(button_x, button_y)
+
 # ズーム起動部分(windows専用)
 def run_zoom():
-
     pg.press('win')
     pg.PAUSE = 1
     pg.write('zoom')
@@ -62,12 +70,29 @@ def Stop():
     pg.PAUSE = 1
 
     #全員に対してミーティングを終了する
-    button_loc = pg.locateOnScreen(button_quit)
-    if button_loc is None:
-        print('404 NOT FOUND')
-    else:
-        button_x, button_y = pg.center(button_loc)
-        pg.click(button_x, button_y)
+    sarch_click(button_quit)
+
+def close_audio_window():
+    #コンピュータオーディオのウィンドウが邪魔なので消す
+    pg.hotkey('alt', 'f4')
+
+#ゼミ開始時、画面共有しておく
+def sharing():
+    #画面共有を開始する
+    pg.hotkey('alt', 's')
+
+    #1秒待機
+    pg.PAUSE = 1
+
+    #パワーポイントのアイコン
+    button_pp = r'button\active\button_powerpoint.PNG'
+
+    #パワーポイントを選択する
+    sarch_click(button_pp)
+
+    #共有を開始する
+    pg.press('enter')
+
 
 #ミーティング開始時
 def Start_Zoom():
@@ -78,6 +103,14 @@ def Start_Zoom():
     except KeyboardInterrupt:
         print('ERROR: It can not start zoom meeting.\n')
         pg.FAILSAFE = True
+
+#ミーティング開始時にパワーポイントを共有する
+def screen_sharing():
+    #邪魔なウィンドウを消す
+    close_audio_window()
+    pg.PAUSE = 1
+    #画面共有開始
+    sharing()
 
 #ミーティング終了時
 def Stop_Zoom():
