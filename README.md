@@ -44,7 +44,7 @@ https://ateruimashin.com/diary/2021/04/auto-zoom-meeting/
 https://ateruimashin.com/diary/2021/04/rpa-add-function/
 
 # 2021/04/12
-追加: ミーティング開始時、パワーポイントを画面共有する機能を追加
+追加: ミーティング開始時、パワーポイントを画面共有する機能を追加  
 修正:
 - operate_zoomにおいて、画像認識をしてクリックする部分を関数にした
 
