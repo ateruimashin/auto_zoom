@@ -17,14 +17,9 @@ layout = [
 
 window = sg.Window('ミーティング開催', layout)
 
-RPA_running = False
-next_start_date, next_end_date = '0000-00-00 00:00', '0000-00-00 00:00'
 count = -1  #初回ループ時に予定取得させるため
-interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
-zoom_flag = False   #何度も起動するのを防ぐため。Trueの場合1分経過でFalseに戻す。
 
-def start_zoom():
-    zoom_flag = True
+def start_zoom(now_date):
     oz.Start_Zoom()
     print('{} Start meeting'.format(now_date))
             
@@ -34,7 +29,7 @@ def start_zoom():
     #画面共有開始
     oz.screen_sharing()
 
-def end_zoom():
+def end_zoom(now_date,count):
     zoom_flag = True
     oz.Stop_Zoom()
     print('{} Quit meeting'.format(now_date))
@@ -42,84 +37,97 @@ def end_zoom():
     #ミーティング終了後、即座に予定を再取得する
     count = -1
 
-while True:
-    event, values = window.read(timeout=1000)  #ループ間隔は1秒
+def GUI(count):
+    RPA_running = False
+    next_start_date, next_end_date = '0000-00-00 00:00', '0000-00-00 00:00'
+    interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
+    zoom_flag = False   #何度も起動するのを防ぐため。Trueの場合1分経過でFalseに戻す。
 
-    #現在時刻を取得
-    now = dt.datetime.now()
+    while True:
+        event, values = window.read(timeout=1000)  #ループ間隔は1秒
 
-    #時刻表示のために整形
-    now_time = now.strftime('%Y-%m-%d %H:%M:%S')
+        #現在時刻を取得
+        now = dt.datetime.now()
 
-    #比較のためにstr型に変換
-    now_date = now.strftime('%Y-%m-%d %H:%M')
+        #時刻表示のために整形
+        now_time = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    #現在時刻の表示
-    window['-NOW-'].update(now_time)
+        #比較のためにstr型に変換
+        now_date = now.strftime('%Y-%m-%d %H:%M')
 
-    #ボタン操作
-    if event in ('Quit'):
-        break
-    elif event == 'Start/Stop':
-        RPA_running = not RPA_running
+        #現在時刻の表示
+        window['-NOW-'].update(now_time)
+
+        #ボタン操作
+        if event in ('Quit'):
+            break
+        elif event == 'Start/Stop':
+            RPA_running = not RPA_running
+            if RPA_running:
+                print('{} Start'.format(now_date))
+            else:
+                print('{} Stop'.format(now_date))
+                #再開時に予定を取得させるため
+                count = -1
+
         if RPA_running:
-            print('{} Start'.format(now_date))
-        else:
-            print('{} Stop'.format(now_date))
-            #再開時に予定を取得させるため
-            count = -1
 
-    if RPA_running:
+            #30分間隔で予定取得
+            if count == -1 or count == 1800:
 
-        #30分間隔で予定取得
-        if count == -1 or count == 1800:
+                #カウンタを戻す
+                count = 0
 
-            #カウンタを戻す
-            count = 0
+                #予定を5つ取得し、直近の予定の開始時刻と終了時刻を格納
+                schedule = gs.get_events()
+                start_date = schedule[0]
+                end_date = schedule[1]
 
-            #予定を5つ取得し、直近の予定の開始時刻と終了時刻を格納
-            schedule = gs.get_events()
-            start_date = schedule[0]
-            end_date = schedule[1]
+                #予定を整形
+                start_date = start_date[0:10] + ' ' + start_date[11:16]
+                end_date = end_date[0:10] + ' ' + end_date[11:16]
 
-            #予定を整形
-            start_date = start_date[0:10] + ' ' + start_date[11:16]
-            end_date = end_date[0:10] + ' ' + end_date[11:16]
+                #予定を取得したらログに記述
+                print('{} Get next schedule'.format(now_date))
 
-            #予定を取得したらログに記述
-            print('{} Get next schedule'.format(now_date))
+                #次の予定が変更されたらログに記述
+                if start_date != next_start_date:
+                    next_start_date = start_date
+                    next_end_date = end_date
+                    print('{} Update next schedule'.format(now_date))
 
-            #次の予定が変更されたらログに記述
-            if start_date != next_start_date:
-                next_start_date = start_date
-                next_end_date = end_date
-                print('{} Update next schedule'.format(now_date))
+                #GUI表示
+                window['-START-'].update(start_date)
+                window['-END-'].update(end_date)
 
-            #GUI表示
-            window['-START-'].update(start_date)
-            window['-END-'].update(end_date)
+            #ミーティング開始時、終了時にカウントを始める
+            if zoom_flag == True:
+                interval += 1
 
-        #ミーティング開始時、終了時にカウントを始める
-        if zoom_flag == True:
-            interval += 1
+            #60秒経過したらフラッグを反転させ、変数を初期値に戻す
+            if interval == 60:
+                zoom_flag = not zoom_flag
+                interval = 0
 
-        #60秒経過したらフラッグを反転させ、変数を初期値に戻す
-        if interval == 60:
-            zoom_flag = not zoom_flag
-            interval = 0
+            #開始時刻かつ直前にミーティングを起動していないならミーティングを開始する
+            if start_date == now_date and zoom_flag == False:
+                zoom_flag = True
+                zoom_thread = threading.Thread(target=start_zoom, daemon=True, args=(now_date,))
+                zoom_thread.start()
 
-        #開始時刻かつ直前にミーティングを起動していないならミーティングを開始する
-        if start_date == now_date and zoom_flag == False:
-            start_zoom()
-
-        #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
-        if end_date == now_date and zoom_flag == False:
-            end_zoom()
-        
-        #カウンタを増やす
-        count += 1
-
-    else:
-        continue
+            #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
+            if end_date == now_date and zoom_flag == False:
+                zoom_flag = True
+                zoom_thread = threading.Thread(target=end_zoom, daemon=True, args=(now_date, count,))
             
-window.close()
+            #カウンタを増やす
+            count += 1
+
+        else:
+            continue
+            
+    window.close()
+
+if __name__ == '__main__':
+    GUI_thread = threading.Thread(target=GUI, args=(count,))
+    GUI_thread.start()
