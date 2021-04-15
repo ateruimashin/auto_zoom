@@ -29,7 +29,7 @@ def start_zoom(now_date):
     #画面共有開始
     oz.screen_sharing()
 
-def end_zoom(now_date,count):
+def end_zoom(now_date):
     global count
     zoom_flag = True
     oz.Stop_Zoom()
@@ -120,7 +120,7 @@ def GUI():
             #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
             if end_date == now_date and zoom_flag == False:
                 zoom_flag = True
-                zoom_thread = threading.Thread(target = end_zoom, daemon = True, args = (now_date, count,))
+                zoom_thread = threading.Thread(target = end_zoom, daemon = True, args = (now_date,))
                 zoom_thread.start()
             
             #カウンタを増やす
