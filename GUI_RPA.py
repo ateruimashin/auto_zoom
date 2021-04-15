@@ -100,6 +100,9 @@ def GUI(count):
                 window['-START-'].update(start_date)
                 window['-END-'].update(end_date)
 
+            #debug
+            print(zoom_flag)
+
             #ミーティング開始時、終了時にカウントを始める
             if zoom_flag == True:
                 interval += 1
