@@ -30,6 +30,7 @@ def start_zoom(now_date):
     oz.screen_sharing()
 
 def end_zoom(now_date,count):
+    global count
     zoom_flag = True
     oz.Stop_Zoom()
     print('{} Quit meeting'.format(now_date))
@@ -37,7 +38,8 @@ def end_zoom(now_date,count):
     #ミーティング終了後、即座に予定を再取得する
     count = -1
 
-def GUI(count):
+def GUI():
+    global count
     RPA_running = False
     next_start_date, next_end_date = '0000-00-00 00:00', '0000-00-00 00:00'
     interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
@@ -118,7 +120,7 @@ def GUI(count):
             #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
             if end_date == now_date and zoom_flag == False:
                 zoom_flag = True
-                zoom_thread = threading.Thread(target=end_zoom, daemon=True, args=(now_date, count,))
+                zoom_thread = threading.Thread(target = end_zoom, daemon = True, args = (now_date, count,))
                 zoom_thread.start()
             
             #カウンタを増やす
@@ -130,5 +132,5 @@ def GUI(count):
     window.close()
 
 if __name__ == '__main__':
-    GUI_thread = threading.Thread(target=GUI, args=(count,))
+    GUI_thread = threading.Thread(target=GUI)
     GUI_thread.start()
