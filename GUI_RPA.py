@@ -3,6 +3,7 @@ import datetime as dt
 import getschedule as gs
 import operate_zoom as oz
 import time
+import threading
 
 sg.theme('DarkBrown1')
 
@@ -22,6 +23,24 @@ count = -1  #初回ループ時に予定取得させるため
 interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
 zoom_flag = False   #何度も起動するのを防ぐため。Trueの場合1分経過でFalseに戻す。
 
+def start_zoom():
+    zoom_flag = True
+    oz.Start_Zoom()
+    print('{} Start meeting'.format(now_date))
+            
+    #タイミング調整
+    time.sleep(5)
+
+    #画面共有開始
+    oz.screen_sharing()
+
+def end_zoom():
+    zoom_flag = True
+    oz.Stop_Zoom()
+    print('{} Quit meeting'.format(now_date))
+
+    #ミーティング終了後、即座に予定を再取得する
+    count = -1
 
 while True:
     event, values = window.read(timeout=1000)  #ループ間隔は1秒
@@ -91,24 +110,11 @@ while True:
 
         #開始時刻かつ直前にミーティングを起動していないならミーティングを開始する
         if start_date == now_date and zoom_flag == False:
-            zoom_flag = True
-            oz.Start_Zoom()
-            print('{} Start meeting'.format(now_date))
-            
-            #タイミング調整
-            time.sleep(5)
-
-            #画面共有開始
-            oz.screen_sharing()
+            start_zoom()
 
         #終了時刻にかつ直前にミーティングを終了していないならミーティングを終了する
         if end_date == now_date and zoom_flag == False:
-            zoom_flag = True
-            oz.Stop_Zoom()
-            print('{} Quit meeting'.format(now_date))
-            #ミーティング終了後、即座に予定を再取得する
-            count = -1
-            continue
+            end_zoom()
         
         #カウンタを増やす
         count += 1
