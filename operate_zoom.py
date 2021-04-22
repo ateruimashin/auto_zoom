@@ -6,7 +6,9 @@ import os
 def sarch_click(button):
     #マウスポインタがボタン上にあると正しく認識しないことを防ぐ
     #ボタンが存在することのない場所へマウスポインタを移動させる
-    pg.moveTo(pg.size())
+    x, y = pg.size()
+    #画面端はフェイルセーフが発動するので端ギリギリに移動
+    pg.moveTo(x - 10, y - 10)
 
     #ボタンの位置の座標を取得
     button_loc = pg.locateOnScreen(button)
@@ -14,6 +16,7 @@ def sarch_click(button):
     if button_loc is None:
         #ボタンが見つからなかった時、エラーメッセージを出す
         print('It can not find {} button'.format(button))
+        sys.exit()
     else:
         button_x, button_y = pg.center(button_loc)
         pg.click(button_x, button_y)
@@ -63,10 +66,7 @@ def start_meeting():
         # 画面遷移のために1秒停止する
         pg.PAUSE = 1
 
-    # ミーティング開始ボタンを押す部分
-    #開始ボタンを探す
-    button_start = pg.locateOnScreen(button_start)
-    #ボタンが見つからない場合
+    # ミーティング開始ボタンを押す
     sarch_click(button_start)
 
 def Stop():
