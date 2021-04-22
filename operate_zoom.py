@@ -4,9 +4,16 @@ import os
 
 #画像認識をしてクリックする
 def sarch_click(button):
+    #マウスポインタがボタン上にあると正しく認識しないことを防ぐ
+    #ボタンが存在することのない場所へマウスポインタを移動させる
+    pg.moveTo(pg.size())
+
+    #ボタンの位置の座標を取得
     button_loc = pg.locateOnScreen(button)
+    #ボタンが見つかったかどうかで分岐
     if button_loc is None:
-        print('404 NOT FOUND')
+        #ボタンが見つからなかった時、エラーメッセージを出す
+        print('It can not find {} button'.format(button))
     else:
         button_x, button_y = pg.center(button_loc)
         pg.click(button_x, button_y)
@@ -41,6 +48,7 @@ def start_meeting():
 
             if button_loc_a is None:
                 # ボタンが見つからないならばプログラムを終了する
+                print('It can not find meeting button')
                 sys.exit()
             else:
                 # ボタンがアクティブならば操作は必要ない
@@ -56,8 +64,10 @@ def start_meeting():
         pg.PAUSE = 1
 
     # ミーティング開始ボタンを押す部分
-    button_x, button_y = pg.center(pg.locateOnScreen(button_start))
-    pg.click(button_x, button_y)
+    #開始ボタンを探す
+    button_start = pg.locateOnScreen(button_start)
+    #ボタンが見つからない場合
+    sarch_click(button_start)
 
 def Stop():
     #ミーティング終了するときに押すボタン
