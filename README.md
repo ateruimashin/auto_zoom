@@ -60,6 +60,7 @@ https://ateruimashin.com/diary/2021/04/rpa-add-function/
 追加:  
 - windows起動時にツールを自動起動するためにbatファイルを作成した  
 - batファイルの実行時に出てくるコマンドプロンプトの画面が出ないようにvbsファイルを作成した  
+
 修正:  
 - 自動起動時、ツールも自動でStartするように変更  
 
