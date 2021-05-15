@@ -40,7 +40,7 @@ def end_zoom(now_date):
 
 def GUI():
     global count
-    RPA_running = False
+    RPA_running = True
     next_start_date, next_end_date = '0000-00-00 00:00', '0000-00-00 00:00'
     interval = 0 #ミーティング開始時、終了時から1分間カウントする変数
     zoom_flag = False   #何度も起動するのを防ぐため。Trueの場合1分経過でFalseに戻す。
